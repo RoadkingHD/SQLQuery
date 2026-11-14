@@ -362,7 +362,7 @@ namespace SqlQuery.Forms
             this.txtDefinition.Multiline = true;
             this.txtDefinition.Name = "txtDefinition";
             this.txtDefinition.ReadOnly = true;
-            this.txtDefinition.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
             this.txtDefinition.Size = new System.Drawing.Size(706, 482);
             this.txtDefinition.TabIndex = 0;
             this.txtDefinition.WordWrap = false;
