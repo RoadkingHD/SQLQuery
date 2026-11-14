@@ -54,6 +54,12 @@
     <Compile Include="Editing\SqlCodeCompletion.cs" />
     <Compile Include="Editing\SqlEditor.cs" />
     <Compile Include="Editing\SqlSyntaxHighlighter.cs" />
+    <Compile Include="Forms\CodeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CodeDialog.Designer.cs">
+      <DependentUpon>CodeDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ConnectionDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -70,6 +76,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\CodeDialog.resx">
+      <DependentUpon>CodeDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ConnectionDialog.resx">
       <DependentUpon>ConnectionDialog.cs</DependentUpon>
     </EmbeddedResource>

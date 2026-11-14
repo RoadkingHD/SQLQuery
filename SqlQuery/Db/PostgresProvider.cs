@@ -167,6 +167,71 @@ namespace SqlQuery.Db
             return sb.ToString();
         }
 
+        public override string GetClrType(string dataType)
+        {
+            string type = dataType.ToLowerInvariant();
+            int paren = type.IndexOf('(');
+            if (paren >= 0)
+            {
+                type = type.Substring(0, paren);
+            }
+            switch (type)
+            {
+                case "smallint":
+                case "int2":
+                    return "short";
+                case "integer":
+                case "int":
+                case "int4":
+                case "serial":
+                    return "int";
+                case "bigint":
+                case "int8":
+                case "bigserial":
+                    return "long";
+                case "boolean":
+                case "bool":
+                    return "bool";
+                case "real":
+                case "float4":
+                    return "float";
+                case "double precision":
+                case "float8":
+                    return "double";
+                case "numeric":
+                case "decimal":
+                case "money":
+                    return "decimal";
+                case "character varying":
+                case "character":
+                case "char":
+                case "varchar":
+                case "text":
+                case "json":
+                case "jsonb":
+                case "xml":
+                    return "string";
+                case "date":
+                case "timestamp":
+                case "timestamp without time zone":
+                    return "DateTime";
+                case "timestamp with time zone":
+                case "timestamptz":
+                    return "DateTimeOffset";
+                case "time":
+                case "time without time zone":
+                case "time with time zone":
+                case "interval":
+                    return "TimeSpan";
+                case "uuid":
+                    return "Guid";
+                case "bytea":
+                    return "byte[]";
+                default:
+                    return "object";
+            }
+        }
+
         public override string BuildSelectTop(TableRef table, int limit)
         {
             return "SELECT * FROM " + QuoteFullName(table.Schema, table.Name) + " LIMIT " + limit;

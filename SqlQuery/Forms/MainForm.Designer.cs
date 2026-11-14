@@ -32,6 +32,7 @@ namespace SqlQuery.Forms
             this.tvSchema = new System.Windows.Forms.TreeView();
             this.cmsTable = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuSelectTop = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDumpClass = new System.Windows.Forms.ToolStripMenuItem();
             this.tabMain = new System.Windows.Forms.TabControl();
             this.tpQuery = new System.Windows.Forms.TabPage();
             this.splitEditor = new System.Windows.Forms.SplitContainer();
@@ -194,9 +195,10 @@ namespace SqlQuery.Forms
             // cmsTable
             // 
             this.cmsTable.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuSelectTop});
+            this.mnuSelectTop,
+            this.mnuDumpClass});
             this.cmsTable.Name = "cmsTable";
-            this.cmsTable.Size = new System.Drawing.Size(181, 26);
+            this.cmsTable.Size = new System.Drawing.Size(181, 48);
             // 
             // mnuSelectTop
             // 
@@ -204,6 +206,13 @@ namespace SqlQuery.Forms
             this.mnuSelectTop.Size = new System.Drawing.Size(180, 22);
             this.mnuSelectTop.Text = "Select Top 1000 Rows";
             this.mnuSelectTop.Click += new System.EventHandler(this.mnuSelectTop_Click);
+            // 
+            // mnuDumpClass
+            // 
+            this.mnuDumpClass.Name = "mnuDumpClass";
+            this.mnuDumpClass.Size = new System.Drawing.Size(180, 22);
+            this.mnuDumpClass.Text = "Dump as C# Class";
+            this.mnuDumpClass.Click += new System.EventHandler(this.mnuDumpClass_Click);
             // 
             // tabMain
             // 
@@ -544,6 +553,7 @@ namespace SqlQuery.Forms
         private System.Windows.Forms.TreeView tvSchema;
         private System.Windows.Forms.ContextMenuStrip cmsTable;
         private System.Windows.Forms.ToolStripMenuItem mnuSelectTop;
+        private System.Windows.Forms.ToolStripMenuItem mnuDumpClass;
         private System.Windows.Forms.TabControl tabMain;
         private System.Windows.Forms.TabPage tpQuery;
         private System.Windows.Forms.SplitContainer splitEditor;

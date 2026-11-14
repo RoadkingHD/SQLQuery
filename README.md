@@ -22,6 +22,7 @@ A full-English Windows Forms (C#, .NET Framework 4.7.2) desktop tool to connect 
   - **Code completion** (Ctrl+Space or as you type): SQL keywords, functions, tables, and columns of the selected table; popup navigable with arrows, Enter/Tab to accept, Esc to close
   - Execute with **F5** or the toolbar; multiple result sets supported; results grid plus messages pane with row counts and elapsed time
 - **Right-click a table in the tree → "Select Top 1000 Rows"** to query any table instantly.
+- **Right-click a table or view → "Dump as C# Class"** to generate a POCO class from the table's columns (per-provider CLR type mapping, `Nullable<T>` for nullable value-type columns, PascalCase property names, "Copy to Clipboard" support).
 
 ## Project layout
 
@@ -34,7 +35,7 @@ SqlQuery/
   Db/
     ConnectionInfo.cs        connection model + connection-string builders
     ConnectionStore.cs       save/load named connections (JSON)
-    DbProviderBase.cs        abstract provider + shared helpers (query, DDL generation)
+    DbProviderBase.cs        abstract provider + shared helpers (query, DDL + C# class generation)
     SqlServerProvider.cs     SQL Server metadata / rights / DDL
     SqliteProvider.cs        SQLite metadata / DDL
     PostgresProvider.cs      PostgreSQL metadata / rights / DDL
@@ -46,6 +47,7 @@ SqlQuery/
   Forms/
     MainForm.cs / .Designer.cs / .resx
     ConnectionDialog.cs / .Designer.cs / .resx
+    CodeDialog.cs / .Designer.cs / .resx
 ```
 
 Each WinForms source is split into `*.cs` (logic) and `*.Designer.cs` (layout), as required.

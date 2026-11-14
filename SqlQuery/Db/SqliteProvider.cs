@@ -172,6 +172,45 @@ namespace SqlQuery.Db
             });
         }
 
+        public override string GetClrType(string dataType)
+        {
+            switch (dataType.ToLowerInvariant())
+            {
+                case "text":
+                case "clob":
+                case "char":
+                case "character":
+                case "nchar":
+                case "nvarchar":
+                case "varchar":
+                    return "string";
+                case "int":
+                case "integer":
+                case "bigint":
+                case "smallint":
+                case "mediumint":
+                    return "long";
+                case "real":
+                case "float":
+                case "double":
+                    return "double";
+                case "numeric":
+                case "decimal":
+                    return "decimal";
+                case "boolean":
+                case "bit":
+                    return "bool";
+                case "datetime":
+                case "date":
+                case "timestamp":
+                    return "DateTime";
+                case "blob":
+                    return "byte[]";
+                default:
+                    return "object";
+            }
+        }
+
         public override string BuildSelectTop(TableRef table, int limit)
         {
             return "SELECT * FROM " + QuoteIdentifier(table.Name) + " LIMIT " + limit;
