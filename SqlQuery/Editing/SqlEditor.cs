@@ -44,7 +44,6 @@ namespace SqlQuery.Editing
             highlightTimer.Start();
             if (!suppressCompletion)
             {
-                HideCompletion();
                 UpdateCompletion();
             }
         }
@@ -80,6 +79,10 @@ namespace SqlQuery.Editing
         {
             base.OnLostFocus(e);
             if (completionPopup == null || !completionPopup.Visible)
+            {
+                return;
+            }
+            if (completionPopup.ContainsFocus)
             {
                 return;
             }
@@ -195,6 +198,7 @@ namespace SqlQuery.Editing
             {
                 completionPopup.Show(this, location);
             }
+            Focus();
         }
 
         private void EnsurePopup()
@@ -247,6 +251,7 @@ namespace SqlQuery.Editing
             {
                 suppressCompletion = false;
             }
+            Focus();
         }
 
         private void HideCompletion()

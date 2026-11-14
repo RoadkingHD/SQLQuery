@@ -129,6 +129,19 @@ namespace SqlQuery.Db
             });
         }
 
+        public override DataTable GetProcedures()
+        {
+            DataTable result = new DataTable();
+            result.Columns.Add("table_schema", typeof(string));
+            result.Columns.Add("table_name", typeof(string));
+            return result;
+        }
+
+        public override List<string> GetDatabases()
+        {
+            return new List<string>();
+        }
+
         private static DataTable RightsNotSupported(string note)
         {
             DataTable result = new DataTable();

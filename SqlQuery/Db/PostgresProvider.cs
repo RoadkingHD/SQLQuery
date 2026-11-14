@@ -110,21 +110,47 @@ namespace SqlQuery.Db
             });
         }
 
+        public override DataTable GetProcedures()
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                return Fill(connection,
+                    "SELECT n.nspname AS table_schema, p.proname AS table_name " +
+                    "FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace " +
+                    "WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND p.prokind = 'f' " +
+                    "ORDER BY table_schema, table_name", null);
+            });
+        }
+
+        public override List<string> GetDatabases()
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                List<string> names = new List<string>();
+                foreach (DataRow row in Fill(connection,
+                    "SELECT datname FROM pg_database WHERE NOT datistemplate AND datallowconn ORDER BY datname", null).Rows)
+                {
+                    names.Add(Convert.ToString(row["datname"]));
+                }
+                return names;
+            });
+        }
+
         public override DataTable GetTableRights()
         {
             return WithConnection(delegate(DbConnection connection)
             {
                 return Fill(connection,
-                    "SELECT COALESCE(gr.rolname, 'PUBLIC') AS grantee, " +
-                    "pr.type AS permission, " +
-                    "n.nspname || '.' || c.relname AS object_name, " +
-                    "CASE WHEN pr.grantable THEN 'YES' ELSE 'NO' END AS is_grantable " +
+                    "SELECT n.nspname || '.' || c.relname AS object_name, " +
+                    "perm.permission AS permission, " +
+                    "CURRENT_USER AS grantee, " +
+                    "CASE WHEN has_table_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), perm.permission) " +
+                    "THEN 'GRANTED' ELSE 'DENIED' END AS state " +
                     "FROM pg_class c " +
                     "JOIN pg_namespace n ON n.oid = c.relnamespace " +
-                    "CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl, acldefault('r', c.relowner))) AS pr " +
-                    "LEFT JOIN pg_roles gr ON gr.oid = pr.grantee " +
-                    "WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND c.relkind IN ('r','v') " +
-                    "ORDER BY object_name, grantee, permission", null);
+                    "CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('DELETE'),('REFERENCES'),('TRIGGER')) AS perm(permission) " +
+                    "WHERE c.relkind IN ('r','v') AND n.nspname NOT IN ('pg_catalog','information_schema') " +
+                    "ORDER BY object_name, permission", null);
             });
         }
 

@@ -33,6 +33,10 @@ namespace SqlQuery.Db
 
         public abstract DataTable GetColumnRights();
 
+        public abstract DataTable GetProcedures();
+
+        public abstract List<string> GetDatabases();
+
         public abstract string GetSchemaDdl();
 
         public abstract string BuildSelectTop(TableRef table, int limit);

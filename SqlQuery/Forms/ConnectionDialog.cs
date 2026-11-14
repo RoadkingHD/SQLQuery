@@ -15,12 +15,6 @@ namespace SqlQuery.Forms
             InitializeComponent();
         }
 
-        public ConnectionDialog(ConnectionInfo existing)
-            : this()
-        {
-            LoadFrom(existing);
-        }
-
         public ConnectionInfo Connection { get; private set; }
 
         private void ConnectionDialog_Load(object sender, EventArgs e)
@@ -33,38 +27,9 @@ namespace SqlQuery.Forms
             }
         }
 
-        private void LoadFrom(ConnectionInfo info)
-        {
-            loading = true;
-            try
-            {
-                txtName.Text = info.Name;
-                cmbServerType.SelectedIndex = (int)info.ServerType;
-                txtServer.Text = info.Server;
-                chkWindowsAuth.Checked = info.WindowsAuth;
-                txtUser.Text = info.UserName;
-                txtPassword.Text = info.Password;
-                txtDatabase.Text = info.Database;
-                chkEncrypt.Checked = info.Encrypt;
-                txtFilePath.Text = info.FilePath;
-                txtHost.Text = info.Server;
-                numPort.Value = info.Port <= 0 ? 5432 : info.Port;
-                txtPgDatabase.Text = info.Database;
-                txtPgUser.Text = info.UserName;
-                txtPgPassword.Text = info.Password;
-                UpdateProviderPanels();
-                UpdatePreview();
-            }
-            finally
-            {
-                loading = false;
-            }
-        }
-
         private ConnectionInfo BuildFromUi()
         {
             ConnectionInfo info = new ConnectionInfo();
-            info.Name = txtName.Text.Trim();
             info.ServerType = (ServerType)cmbServerType.SelectedIndex;
             switch (info.ServerType)
             {
@@ -73,30 +38,29 @@ namespace SqlQuery.Forms
                     info.WindowsAuth = chkWindowsAuth.Checked;
                     info.UserName = txtUser.Text.Trim();
                     info.Password = txtPassword.Text;
-                    info.Database = txtDatabase.Text.Trim();
+                    info.Database = cmbDatabase.Text.Trim();
                     info.Encrypt = chkEncrypt.Checked;
-                    if (info.Name.Length == 0)
-                    {
-                        info.Name = info.Server + "/" + info.Database;
-                    }
+                    info.Name = info.Server + "/" + info.Database;
                     break;
                 case ServerType.Sqlite:
                     info.FilePath = txtFilePath.Text.Trim();
-                    if (info.Name.Length == 0)
-                    {
-                        info.Name = Path.GetFileName(info.FilePath);
-                    }
+                    info.Name = Path.GetFileName(info.FilePath);
                     break;
                 case ServerType.PostgreSql:
                     info.Server = txtHost.Text.Trim();
                     info.Port = (int)numPort.Value;
                     info.UserName = txtPgUser.Text.Trim();
                     info.Password = txtPgPassword.Text;
-                    info.Database = txtPgDatabase.Text.Trim();
-                    if (info.Name.Length == 0)
-                    {
-                        info.Name = info.Server + "/" + info.Database;
-                    }
+                    info.Database = cmbPgDatabase.Text.Trim();
+                    info.Name = info.Server + "/" + info.Database;
+                    break;
+                case ServerType.MySql:
+                    info.Server = txtMySqlHost.Text.Trim();
+                    info.Port = (int)numMySqlPort.Value;
+                    info.UserName = txtMySqlUser.Text.Trim();
+                    info.Password = txtMySqlPassword.Text;
+                    info.Database = cmbMySqlDatabase.Text.Trim();
+                    info.Name = info.Server + "/" + info.Database;
                     break;
             }
             return info;
@@ -108,6 +72,7 @@ namespace SqlQuery.Forms
             grpSqlServer.Visible = type == ServerType.SqlServer;
             grpSqlite.Visible = type == ServerType.Sqlite;
             grpPostgres.Visible = type == ServerType.PostgreSql;
+            grpMySql.Visible = type == ServerType.MySql;
         }
 
         private void UpdatePreview()
@@ -132,12 +97,23 @@ namespace SqlQuery.Forms
             {
                 return;
             }
+            ServerType type = (ServerType)cmbServerType.SelectedIndex;
+            if (type == ServerType.PostgreSql)
+            {
+                numPort.Value = 5432;
+            }
+            else if (type == ServerType.MySql)
+            {
+                numMySqlPort.Value = 3306;
+            }
             UpdateProviderPanels();
             UpdatePreview();
         }
 
         private void OnAnySettingChanged(object sender, EventArgs e)
         {
+            txtUser.Enabled = !chkWindowsAuth.Checked;
+            txtPassword.Enabled = !chkWindowsAuth.Checked;
             UpdatePreview();
         }
 
@@ -160,15 +136,21 @@ namespace SqlQuery.Forms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                DbProviderBase testProvider = DbProviderBase.Create(BuildFromUi());
+                ConnectionInfo info = BuildFromUi();
+                DbProviderBase testProvider = DbProviderBase.Create(info);
                 testProvider.TestConnection();
-                MessageBox.Show(this, "Connection successful.", "Test Connection",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                List<string> databases = testProvider.GetDatabases();
+                FillDatabaseCombo(cmbDatabase, databases, info.Database);
+                FillDatabaseCombo(cmbPgDatabase, databases, info.Database);
+                FillDatabaseCombo(cmbMySqlDatabase, databases, info.Database);
+                string message = databases.Count > 0
+                    ? "Connection successful. " + databases.Count + " database(s) loaded - pick one below."
+                    : "Connection successful.";
+                MessageBox.Show(this, message, "Test Connection", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Connection Failed",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.Message, "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -176,40 +158,30 @@ namespace SqlQuery.Forms
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private static void FillDatabaseCombo(ComboBox combo, List<string> databases, string selected)
         {
-            ConnectionInfo info = BuildFromUi();
-            if (info.Name.Length == 0)
+            combo.Items.Clear();
+            foreach (string database in databases)
             {
-                MessageBox.Show(this, "Enter a connection name before saving.", "Save Connection",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                combo.Items.Add(database);
             }
-            List<ConnectionInfo> all = ConnectionStore.Load();
-            ConnectionInfo existing = null;
-            foreach (ConnectionInfo candidate in all)
+            int index = -1;
+            for (int i = 0; i < databases.Count; i++)
             {
-                if (string.Equals(candidate.Name, info.Name, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(databases[i], selected, StringComparison.OrdinalIgnoreCase))
                 {
-                    existing = candidate;
+                    index = i;
                     break;
                 }
             }
-            if (existing != null)
+            if (index >= 0)
             {
-                DialogResult choice = MessageBox.Show(this,
-                    "A connection named \"" + info.Name + "\" already exists. Overwrite it?",
-                    "Save Connection", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (choice != DialogResult.Yes)
-                {
-                    return;
-                }
-                all.Remove(existing);
+                combo.SelectedIndex = index;
             }
-            all.Add(info);
-            ConnectionStore.Save(all);
-            MessageBox.Show(this, "Connection \"" + info.Name + "\" saved.", "Save Connection",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            else if (combo.Items.Count > 0)
+            {
+                combo.SelectedIndex = 0;
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -218,7 +190,7 @@ namespace SqlQuery.Forms
             string error = ValidateInfo(info);
             if (error != null)
             {
-                MessageBox.Show(this, error, "SqlQuery", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, error, "Connect", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 DialogResult = DialogResult.None;
                 return;
             }
@@ -234,6 +206,10 @@ namespace SqlQuery.Forms
                     {
                         return "Enter a server name.";
                     }
+                    if (info.Database.Length == 0)
+                    {
+                        return "Click \"Test Connection\" and select a database.";
+                    }
                     break;
                 case ServerType.Sqlite:
                     if (info.FilePath.Length == 0)
@@ -245,6 +221,20 @@ namespace SqlQuery.Forms
                     if (info.Server.Length == 0)
                     {
                         return "Enter a host name.";
+                    }
+                    if (info.Database.Length == 0)
+                    {
+                        return "Click \"Test Connection\" and select a database.";
+                    }
+                    break;
+                case ServerType.MySql:
+                    if (info.Server.Length == 0)
+                    {
+                        return "Enter a host name.";
+                    }
+                    if (info.Database.Length == 0)
+                    {
+                        return "Click \"Test Connection\" and select a database.";
                     }
                     break;
             }

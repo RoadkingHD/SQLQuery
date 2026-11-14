@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using SqlQuery.Db;
@@ -12,7 +12,10 @@ namespace SqlQuery.Forms
 {
     public partial class MainForm : Form
     {
-        private readonly List<ConnectionInfo> connections = new List<ConnectionInfo>();
+        private const int IconTable = 0;
+        private const int IconView = 1;
+        private const int IconProcedure = 2;
+
         private DbProviderBase provider;
         private ConnectionInfo currentConnection;
         private bool tablesLoaded;
@@ -26,8 +29,8 @@ namespace SqlQuery.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            LoadConnectionList();
-            SetStatus("Not connected. Click \"Connect...\" to choose a database.");
+            tvSchema.ImageList = CreateSchemaImageList();
+            SetStatus("Not connected. Click \"New Connection...\" to choose a database.");
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -41,42 +44,46 @@ namespace SqlQuery.Forms
             }
         }
 
-        private void LoadConnectionList()
+        private static ImageList CreateSchemaImageList()
         {
-            connections.Clear();
-            connections.AddRange(ConnectionStore.Load());
-            ComboBox combo = cmbConnections.ComboBox;
-            combo.DataSource = null;
-            combo.DataSource = connections;
-            combo.DisplayMember = "Name";
+            ImageList images = new ImageList();
+            images.ImageSize = new Size(16, 16);
+            images.ColorDepth = ColorDepth.Depth32Bit;
+            images.Images.Add(DrawObjectIcon(Color.FromArgb(0, 102, 204), "T"));
+            images.Images.Add(DrawObjectIcon(Color.FromArgb(0, 153, 51), "V"));
+            images.Images.Add(DrawObjectIcon(Color.FromArgb(153, 51, 204), "P"));
+            return images;
+        }
+
+        private static Bitmap DrawObjectIcon(Color color, string letter)
+        {
+            Bitmap bitmap = new Bitmap(16, 16);
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                using (SolidBrush brush = new SolidBrush(color))
+                {
+                    graphics.FillRectangle(brush, 1, 2, 14, 12);
+                }
+                using (Font font = new Font(FontFamily.GenericSansSerif, 7f, FontStyle.Bold))
+                {
+                    using (StringFormat format = new StringFormat())
+                    {
+                        format.Alignment = StringAlignment.Center;
+                        format.LineAlignment = StringAlignment.Center;
+                        using (SolidBrush textBrush = new SolidBrush(Color.White))
+                        {
+                            RectangleF bounds = new RectangleF(1f, 2f, 14f, 12f);
+                            graphics.DrawString(letter, font, textBrush, bounds, format);
+                        }
+                    }
+                }
+            }
+            return bitmap;
         }
 
         private void SetStatus(string text)
         {
             lblStatus.Text = text;
-        }
-
-        private ConnectionInfo GetSelectedConnection()
-        {
-            return cmbConnections.SelectedItem as ConnectionInfo;
-        }
-
-        private void btnConnect_Click(object sender, EventArgs e)
-        {
-            ConnectionInfo selected = GetSelectedConnection();
-            if (selected == null)
-            {
-                using (ConnectionDialog dialog = new ConnectionDialog())
-                {
-                    if (dialog.ShowDialog(this) != DialogResult.OK)
-                    {
-                        return;
-                    }
-                    LoadConnectionList();
-                    selected = dialog.Connection;
-                }
-            }
-            Connect(selected);
         }
 
         private void btnNewConnection_Click(object sender, EventArgs e)
@@ -86,36 +93,6 @@ namespace SqlQuery.Forms
                 if (dialog.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
-                }
-                LoadConnectionList();
-                Connect(dialog.Connection);
-            }
-        }
-
-        private void btnEditConnection_Click(object sender, EventArgs e)
-        {
-            ConnectionInfo selected = GetSelectedConnection();
-            if (selected == null)
-            {
-                MessageBox.Show(this, "Select a saved connection first, or create a new one.",
-                    "SqlQuery", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            string name = selected.Name;
-            using (ConnectionDialog dialog = new ConnectionDialog(selected))
-            {
-                if (dialog.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
-                LoadConnectionList();
-                foreach (ConnectionInfo item in connections)
-                {
-                    if (string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        cmbConnections.SelectedItem = item;
-                        break;
-                    }
                 }
                 Connect(dialog.Connection);
             }
@@ -133,6 +110,7 @@ namespace SqlQuery.Forms
             gridRights.DataSource = null;
             gridColumnRights.DataSource = null;
             txtSchema.Clear();
+            txtCode.Clear();
             tablesLoaded = false;
             rightsLoaded = false;
             schemaLoaded = false;
@@ -167,6 +145,19 @@ namespace SqlQuery.Forms
             }
         }
 
+        private void btnCopyCode_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Clipboard.SetText(txtCode.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, "Could not copy to clipboard: " + ex.Message,
+                    "SqlQuery", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
         private void Connect(ConnectionInfo info)
         {
             try
@@ -180,6 +171,7 @@ namespace SqlQuery.Forms
                 rightsLoaded = false;
                 schemaLoaded = false;
                 BuildSchemaTree();
+                LoadCompletionColumns();
                 editor.Completion.SetTables(provider.GetCompletionTables());
                 Text = "SqlQuery - " + info.Name + " (" + provider.DisplayName + ")";
                 SetStatus("Connected to \"" + info.Name + "\" (" + provider.DisplayName + ").");
@@ -190,7 +182,7 @@ namespace SqlQuery.Forms
                 currentConnection = null;
                 tvSchema.Nodes.Clear();
                 editor.Completion.ClearSchema();
-                MessageBox.Show(this, ex.Message, "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.ToString(), "Connection Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 SetStatus("Connection failed.");
             }
             finally
@@ -206,20 +198,29 @@ namespace SqlQuery.Forms
             {
                 tvSchema.Nodes.Clear();
                 TreeNode root = new TreeNode(currentConnection.Name + "  [" + provider.DisplayName + "]");
+                root.ImageIndex = -1;
+                root.SelectedImageIndex = -1;
+
                 TreeNode tablesNode = new TreeNode("Tables");
+                tablesNode.ImageIndex = -1;
+                tablesNode.SelectedImageIndex = -1;
                 TreeNode viewsNode = new TreeNode("Views");
+                viewsNode.ImageIndex = -1;
+                viewsNode.SelectedImageIndex = -1;
+                TreeNode proceduresNode = new TreeNode("Stored Procedures");
+                proceduresNode.ImageIndex = -1;
+                proceduresNode.SelectedImageIndex = -1;
+
                 foreach (DataRow row in provider.GetTables().Rows)
                 {
                     TableRef tableRef = new TableRef();
                     tableRef.Schema = Convert.ToString(row["table_schema"]);
                     tableRef.Name = Convert.ToString(row["table_name"]);
                     tableRef.Type = Convert.ToString(row["table_type"]);
-                    TreeNode node = new TreeNode(tableRef.FullName);
+                    bool isView = tableRef.Type == "VIEW";
+                    TreeNode node = new TreeNode(tableRef.FullName, isView ? IconView : IconTable, isView ? IconView : IconTable);
                     node.Tag = tableRef;
-                    node.Nodes.Add(NewPlaceholder(tableRef, "Columns"));
-                    node.Nodes.Add(NewPlaceholder(tableRef, "Primary Key"));
-                    node.Nodes.Add(NewPlaceholder(tableRef, "Indexes"));
-                    if (tableRef.Type == "VIEW")
+                    if (isView)
                     {
                         viewsNode.Nodes.Add(node);
                     }
@@ -228,11 +229,30 @@ namespace SqlQuery.Forms
                         tablesNode.Nodes.Add(node);
                     }
                 }
+
+                foreach (DataRow row in provider.GetProcedures().Rows)
+                {
+                    TableRef tableRef = new TableRef();
+                    tableRef.Schema = Convert.ToString(row["table_schema"]);
+                    tableRef.Name = Convert.ToString(row["table_name"]);
+                    tableRef.Type = "PROCEDURE";
+                    TreeNode node = new TreeNode(tableRef.FullName, IconProcedure, IconProcedure);
+                    node.Tag = tableRef;
+                    proceduresNode.Nodes.Add(node);
+                }
+
+                if (tablesNode.Nodes.Count > 0)
+                {
+                    root.Nodes.Add(tablesNode);
+                }
                 if (viewsNode.Nodes.Count > 0)
                 {
                     root.Nodes.Add(viewsNode);
                 }
-                root.Nodes.Add(tablesNode);
+                if (proceduresNode.Nodes.Count > 0)
+                {
+                    root.Nodes.Add(proceduresNode);
+                }
                 tvSchema.Nodes.Add(root);
                 tvSchema.ExpandAll();
             }
@@ -242,111 +262,53 @@ namespace SqlQuery.Forms
             }
         }
 
-        private static TreeNode NewPlaceholder(TableRef tableRef, string kind)
+        private void LoadCompletionColumns()
         {
-            TreeNode node = new TreeNode(kind);
-            node.Name = kind;
-            node.Tag = tableRef;
-            node.Nodes.Add(new TreeNode("..."));
-            return node;
-        }
-
-        private void tvSchema_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            TreeNode node = e.Node;
-            TableRef tableRef = node.Tag as TableRef;
-            if (tableRef == null)
+            foreach (DataRow row in provider.GetTables().Rows)
             {
-                return;
-            }
-            if (node.Nodes.Count == 1 && node.Nodes[0].Text == "...")
-            {
+                string schema = Convert.ToString(row["table_schema"]);
+                string name = Convert.ToString(row["table_name"]);
+                string type = Convert.ToString(row["table_type"]);
+                if (type == "VIEW")
+                {
+                    continue;
+                }
                 try
                 {
-                    if (node.Name == "Columns")
+                    DataTable columns = provider.GetColumns(schema, name);
+                    List<string> names = new List<string>();
+                    foreach (DataRow columnRow in columns.Rows)
                     {
-                        FillColumnNodes(node, tableRef);
+                        names.Add(Convert.ToString(columnRow["column_name"]));
                     }
-                    else if (node.Name == "Primary Key")
-                    {
-                        FillPrimaryKeys(node, tableRef);
-                    }
-                    else if (node.Name == "Indexes")
-                    {
-                        FillIndexes(node, tableRef);
-                    }
-                    else
-                    {
-                        node.Nodes.Clear();
-                    }
+                    TableRef tableRef = new TableRef();
+                    tableRef.Schema = schema;
+                    tableRef.Name = name;
+                    tableRef.Type = type;
+                    editor.Completion.AddTableColumns(tableRef.FullName, names);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    node.Nodes.Clear();
-                    node.Nodes.Add(new TreeNode("Error: " + ex.Message));
+                    // Column metadata is optional for completion; ignore per-table failures.
                 }
             }
         }
 
-        private void FillColumnNodes(TreeNode node, TableRef tableRef)
+        private void cmsTable_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            DataTable columns = provider.GetColumns(tableRef.Schema, tableRef.Name);
-            node.Nodes.Clear();
-            List<string> names = new List<string>();
-            foreach (DataRow row in columns.Rows)
+            TreeNode node = tvSchema.GetNodeAt(tvSchema.PointToClient(Cursor.Position));
+            if (node == null || !(node.Tag is TableRef))
             {
-                string name = Convert.ToString(row["column_name"]);
-                names.Add(name);
-                string type = Convert.ToString(row["data_type"]);
-                string flags = DbProviderBase.IsNullableValue(row["is_nullable"]) ? "NULL" : "NOT NULL";
-                node.Nodes.Add(new TreeNode(name + "  " + type + "  (" + flags + ")"));
-            }
-            editor.Completion.AddTableColumns(tableRef.FullName, names);
-        }
-
-        private void FillPrimaryKeys(TreeNode node, TableRef tableRef)
-        {
-            DataTable keys = provider.GetPrimaryKeys(tableRef.Schema, tableRef.Name);
-            node.Nodes.Clear();
-            if (keys.Rows.Count == 0)
-            {
-                node.Nodes.Add(new TreeNode("(none)"));
+                e.Cancel = true;
                 return;
             }
-            foreach (DataRow row in keys.Rows)
-            {
-                node.Nodes.Add(new TreeNode(Convert.ToString(row["column_name"])));
-            }
-        }
-
-        private void FillIndexes(TreeNode node, TableRef tableRef)
-        {
-            DataTable indexes = provider.GetIndexes(tableRef.Schema, tableRef.Name);
-            node.Nodes.Clear();
-            if (indexes.Rows.Count == 0)
-            {
-                node.Nodes.Add(new TreeNode("(none)"));
-                return;
-            }
-            foreach (DataRow row in indexes.Rows)
-            {
-                string label = Convert.ToString(row["index_name"]);
-                if (indexes.Columns.Contains("columns"))
-                {
-                    string columns = Convert.ToString(row["columns"]);
-                    if (columns.Length > 0)
-                    {
-                        label += "  (" + columns + ")";
-                    }
-                }
-                node.Nodes.Add(new TreeNode(label));
-            }
+            tvSchema.SelectedNode = node;
         }
 
         private void tvSchema_AfterSelect(object sender, TreeViewEventArgs e)
         {
             TableRef tableRef = e.Node.Tag as TableRef;
-            if (tableRef == null)
+            if (tableRef == null || tableRef.Type == "PROCEDURE")
             {
                 return;
             }
@@ -400,7 +362,7 @@ namespace SqlQuery.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -464,7 +426,7 @@ namespace SqlQuery.Forms
             }
             catch (Exception ex)
             {
-                messages.AppendLine("Error: " + ex.Message);
+                messages.AppendLine("Error: " + ex.ToString());
                 txtMessages.Text = messages.ToString();
                 tabResults.SelectedTab = tpMessages;
                 SetStatus("Query failed.");
@@ -482,12 +444,13 @@ namespace SqlQuery.Forms
                 return;
             }
             TableRef tableRef = tvSchema.SelectedNode.Tag as TableRef;
-            if (tableRef == null)
+            if (tableRef == null || tableRef.Type == "PROCEDURE")
             {
                 return;
             }
-            editor.Text = provider.BuildSelectTop(tableRef, 1000);
             tabMain.SelectedTab = tpQuery;
+            editor.Clear();
+            editor.AppendText(provider.BuildSelectTop(tableRef, 1000));
             editor.Focus();
         }
 
@@ -498,23 +461,18 @@ namespace SqlQuery.Forms
                 return;
             }
             TableRef tableRef = tvSchema.SelectedNode.Tag as TableRef;
-            if (tableRef == null)
+            if (tableRef == null || tableRef.Type == "PROCEDURE")
             {
                 return;
             }
             try
             {
-                string code = provider.BuildCSharpClass(tableRef);
-                using (CodeDialog dialog = new CodeDialog())
-                {
-                    dialog.DialogTitle = "C# class - " + tableRef.FullName;
-                    dialog.CodeText = code;
-                    dialog.ShowDialog(this);
-                }
+                txtCode.Text = provider.BuildCSharpClass(tableRef);
+                tabMain.SelectedTab = tpCode;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

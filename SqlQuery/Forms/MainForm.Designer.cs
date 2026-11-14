@@ -19,12 +19,8 @@ namespace SqlQuery.Forms
         {
             this.components = new System.ComponentModel.Container();
             this.toolStripMain = new System.Windows.Forms.ToolStrip();
-            this.btnConnect = new System.Windows.Forms.ToolStripButton();
             this.btnNewConnection = new System.Windows.Forms.ToolStripButton();
-            this.btnEditConnection = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.cmbConnections = new System.Windows.Forms.ToolStripComboBox();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnExecute = new System.Windows.Forms.ToolStripButton();
             this.btnRefreshSchema = new System.Windows.Forms.ToolStripButton();
             this.btnDisconnect = new System.Windows.Forms.ToolStripButton();
@@ -54,6 +50,10 @@ namespace SqlQuery.Forms
             this.gridColumnRights = new System.Windows.Forms.DataGridView();
             this.tpSchema = new System.Windows.Forms.TabPage();
             this.txtSchema = new System.Windows.Forms.TextBox();
+            this.tpCode = new System.Windows.Forms.TabPage();
+            this.txtCode = new System.Windows.Forms.TextBox();
+            this.panelCodeTop = new System.Windows.Forms.Panel();
+            this.btnCopyCode = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblRows = new System.Windows.Forms.ToolStripStatusLabel();
@@ -85,91 +85,62 @@ namespace SqlQuery.Forms
             ((System.ComponentModel.ISupportInitialize)(this.gridRights)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridColumnRights)).BeginInit();
             this.tpSchema.SuspendLayout();
+            this.tpCode.SuspendLayout();
+            this.panelCodeTop.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // toolStripMain
-            // 
+            //
             this.toolStripMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnConnect,
             this.btnNewConnection,
-            this.btnEditConnection,
             this.toolStripSeparator1,
-            this.cmbConnections,
-            this.toolStripSeparator2,
             this.btnExecute,
             this.btnRefreshSchema,
             this.btnDisconnect});
             this.toolStripMain.Name = "toolStripMain";
             this.toolStripMain.Size = new System.Drawing.Size(984, 25);
-            // 
-            // btnConnect
-            // 
-            this.btnConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnConnect.Name = "btnConnect";
-            this.btnConnect.Size = new System.Drawing.Size(66, 22);
-            this.btnConnect.Text = "Connect...";
-            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
-            // 
+            //
             // btnNewConnection
-            // 
+            //
             this.btnNewConnection.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnNewConnection.Name = "btnNewConnection";
             this.btnNewConnection.Size = new System.Drawing.Size(107, 22);
             this.btnNewConnection.Text = "New Connection...";
             this.btnNewConnection.Click += new System.EventHandler(this.btnNewConnection_Click);
-            // 
-            // btnEditConnection
-            // 
-            this.btnEditConnection.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnEditConnection.Name = "btnEditConnection";
-            this.btnEditConnection.Size = new System.Drawing.Size(34, 22);
-            this.btnEditConnection.Text = "Edit";
-            this.btnEditConnection.Click += new System.EventHandler(this.btnEditConnection_Click);
-            // 
+            //
             // toolStripSeparator1
-            // 
+            //
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // cmbConnections
-            // 
-            this.cmbConnections.Name = "cmbConnections";
-            this.cmbConnections.Size = new System.Drawing.Size(240, 25);
-            this.cmbConnections.ToolTipText = "Saved connections";
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-            // 
+            //
             // btnExecute
-            // 
+            //
             this.btnExecute.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(83, 22);
             this.btnExecute.Text = "Execute (F5)";
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
-            // 
+            //
             // btnRefreshSchema
-            // 
+            //
             this.btnRefreshSchema.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnRefreshSchema.Name = "btnRefreshSchema";
             this.btnRefreshSchema.Size = new System.Drawing.Size(99, 22);
             this.btnRefreshSchema.Text = "Refresh Schema";
             this.btnRefreshSchema.Click += new System.EventHandler(this.btnRefreshSchema_Click);
-            // 
+            //
             // btnDisconnect
-            // 
+            //
             this.btnDisconnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnDisconnect.Name = "btnDisconnect";
             this.btnDisconnect.Size = new System.Drawing.Size(71, 22);
             this.btnDisconnect.Text = "Disconnect";
             this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
-            // 
+            //
             // splitMain
-            // 
+            //
             this.splitMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitMain.Location = new System.Drawing.Point(0, 25);
@@ -179,9 +150,9 @@ namespace SqlQuery.Forms
             this.splitMain.Size = new System.Drawing.Size(984, 514);
             this.splitMain.SplitterDistance = 260;
             this.splitMain.TabIndex = 0;
-            // 
+            //
             // tvSchema
-            // 
+            //
             this.tvSchema.ContextMenuStrip = this.cmsTable;
             this.tvSchema.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tvSchema.HideSelection = false;
@@ -190,37 +161,38 @@ namespace SqlQuery.Forms
             this.tvSchema.Size = new System.Drawing.Size(260, 514);
             this.tvSchema.TabIndex = 0;
             this.tvSchema.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvSchema_AfterSelect);
-            this.tvSchema.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvSchema_BeforeExpand);
-            // 
+            //
             // cmsTable
-            // 
+            //
             this.cmsTable.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuSelectTop,
             this.mnuDumpClass});
             this.cmsTable.Name = "cmsTable";
             this.cmsTable.Size = new System.Drawing.Size(181, 48);
-            // 
+            this.cmsTable.Opening += new System.ComponentModel.CancelEventHandler(this.cmsTable_Opening);
+            //
             // mnuSelectTop
-            // 
+            //
             this.mnuSelectTop.Name = "mnuSelectTop";
             this.mnuSelectTop.Size = new System.Drawing.Size(180, 22);
             this.mnuSelectTop.Text = "Select Top 1000 Rows";
             this.mnuSelectTop.Click += new System.EventHandler(this.mnuSelectTop_Click);
-            // 
+            //
             // mnuDumpClass
-            // 
+            //
             this.mnuDumpClass.Name = "mnuDumpClass";
             this.mnuDumpClass.Size = new System.Drawing.Size(180, 22);
             this.mnuDumpClass.Text = "Dump as C# Class";
             this.mnuDumpClass.Click += new System.EventHandler(this.mnuDumpClass_Click);
-            // 
+            //
             // tabMain
-            // 
+            //
             this.tabMain.Controls.Add(this.tpQuery);
             this.tabMain.Controls.Add(this.tpTables);
             this.tabMain.Controls.Add(this.tpColumns);
             this.tabMain.Controls.Add(this.tpRights);
             this.tabMain.Controls.Add(this.tpSchema);
+            this.tabMain.Controls.Add(this.tpCode);
             this.tabMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabMain.Location = new System.Drawing.Point(0, 0);
             this.tabMain.Name = "tabMain";
@@ -228,9 +200,9 @@ namespace SqlQuery.Forms
             this.tabMain.Size = new System.Drawing.Size(720, 514);
             this.tabMain.TabIndex = 0;
             this.tabMain.SelectedIndexChanged += new System.EventHandler(this.tabMain_SelectedIndexChanged);
-            // 
+            //
             // tpQuery
-            // 
+            //
             this.tpQuery.Controls.Add(this.splitEditor);
             this.tpQuery.Location = new System.Drawing.Point(4, 22);
             this.tpQuery.Name = "tpQuery";
@@ -238,9 +210,9 @@ namespace SqlQuery.Forms
             this.tpQuery.Size = new System.Drawing.Size(712, 488);
             this.tpQuery.Text = "Query";
             this.tpQuery.UseVisualStyleBackColor = true;
-            // 
+            //
             // splitEditor
-            // 
+            //
             this.splitEditor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitEditor.Location = new System.Drawing.Point(3, 3);
             this.splitEditor.Name = "splitEditor";
@@ -250,9 +222,9 @@ namespace SqlQuery.Forms
             this.splitEditor.Size = new System.Drawing.Size(706, 482);
             this.splitEditor.SplitterDistance = 220;
             this.splitEditor.TabIndex = 0;
-            // 
+            //
             // editor
-            // 
+            //
             this.editor.AcceptsTab = true;
             this.editor.DetectUrls = false;
             this.editor.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -263,9 +235,9 @@ namespace SqlQuery.Forms
             this.editor.TabIndex = 0;
             this.editor.Text = "";
             this.editor.WordWrap = false;
-            // 
+            //
             // tabResults
-            // 
+            //
             this.tabResults.Controls.Add(this.tpData);
             this.tabResults.Controls.Add(this.tpMessages);
             this.tabResults.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -274,9 +246,9 @@ namespace SqlQuery.Forms
             this.tabResults.SelectedIndex = 0;
             this.tabResults.Size = new System.Drawing.Size(706, 258);
             this.tabResults.TabIndex = 0;
-            // 
+            //
             // tpData
-            // 
+            //
             this.tpData.Controls.Add(this.gridResults);
             this.tpData.Location = new System.Drawing.Point(4, 22);
             this.tpData.Name = "tpData";
@@ -284,9 +256,9 @@ namespace SqlQuery.Forms
             this.tpData.Size = new System.Drawing.Size(698, 232);
             this.tpData.Text = "Results";
             this.tpData.UseVisualStyleBackColor = true;
-            // 
+            //
             // gridResults
-            // 
+            //
             this.gridResults.AllowUserToAddRows = false;
             this.gridResults.AllowUserToDeleteRows = false;
             this.gridResults.AllowUserToOrderColumns = true;
@@ -298,9 +270,9 @@ namespace SqlQuery.Forms
             this.gridResults.ReadOnly = true;
             this.gridResults.Size = new System.Drawing.Size(692, 226);
             this.gridResults.TabIndex = 0;
-            // 
+            //
             // tpMessages
-            // 
+            //
             this.tpMessages.Controls.Add(this.txtMessages);
             this.tpMessages.Location = new System.Drawing.Point(4, 22);
             this.tpMessages.Name = "tpMessages";
@@ -308,9 +280,9 @@ namespace SqlQuery.Forms
             this.tpMessages.Size = new System.Drawing.Size(698, 232);
             this.tpMessages.Text = "Messages";
             this.tpMessages.UseVisualStyleBackColor = true;
-            // 
+            //
             // txtMessages
-            // 
+            //
             this.txtMessages.BackColor = System.Drawing.Color.White;
             this.txtMessages.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtMessages.Location = new System.Drawing.Point(3, 3);
@@ -320,9 +292,9 @@ namespace SqlQuery.Forms
             this.txtMessages.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtMessages.Size = new System.Drawing.Size(692, 226);
             this.txtMessages.TabIndex = 0;
-            // 
+            //
             // tpTables
-            // 
+            //
             this.tpTables.Controls.Add(this.gridTables);
             this.tpTables.Location = new System.Drawing.Point(4, 22);
             this.tpTables.Name = "tpTables";
@@ -330,9 +302,9 @@ namespace SqlQuery.Forms
             this.tpTables.Size = new System.Drawing.Size(712, 488);
             this.tpTables.Text = "Tables";
             this.tpTables.UseVisualStyleBackColor = true;
-            // 
+            //
             // gridTables
-            // 
+            //
             this.gridTables.AllowUserToAddRows = false;
             this.gridTables.AllowUserToDeleteRows = false;
             this.gridTables.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
@@ -343,9 +315,9 @@ namespace SqlQuery.Forms
             this.gridTables.ReadOnly = true;
             this.gridTables.Size = new System.Drawing.Size(706, 482);
             this.gridTables.TabIndex = 0;
-            // 
+            //
             // tpColumns
-            // 
+            //
             this.tpColumns.Controls.Add(this.gridColumns);
             this.tpColumns.Location = new System.Drawing.Point(4, 22);
             this.tpColumns.Name = "tpColumns";
@@ -353,9 +325,9 @@ namespace SqlQuery.Forms
             this.tpColumns.Size = new System.Drawing.Size(712, 488);
             this.tpColumns.Text = "Columns";
             this.tpColumns.UseVisualStyleBackColor = true;
-            // 
+            //
             // gridColumns
-            // 
+            //
             this.gridColumns.AllowUserToAddRows = false;
             this.gridColumns.AllowUserToDeleteRows = false;
             this.gridColumns.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
@@ -366,9 +338,9 @@ namespace SqlQuery.Forms
             this.gridColumns.ReadOnly = true;
             this.gridColumns.Size = new System.Drawing.Size(706, 482);
             this.gridColumns.TabIndex = 0;
-            // 
+            //
             // tpRights
-            // 
+            //
             this.tpRights.Controls.Add(this.splitRights);
             this.tpRights.Location = new System.Drawing.Point(4, 22);
             this.tpRights.Name = "tpRights";
@@ -376,9 +348,9 @@ namespace SqlQuery.Forms
             this.tpRights.Size = new System.Drawing.Size(712, 488);
             this.tpRights.Text = "Rights";
             this.tpRights.UseVisualStyleBackColor = true;
-            // 
+            //
             // splitRights
-            // 
+            //
             this.splitRights.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitRights.Location = new System.Drawing.Point(3, 3);
             this.splitRights.Name = "splitRights";
@@ -390,18 +362,18 @@ namespace SqlQuery.Forms
             this.splitRights.Size = new System.Drawing.Size(706, 482);
             this.splitRights.SplitterDistance = 200;
             this.splitRights.TabIndex = 0;
-            // 
+            //
             // lblTableRights
-            // 
+            //
             this.lblTableRights.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblTableRights.Location = new System.Drawing.Point(0, 0);
             this.lblTableRights.Name = "lblTableRights";
             this.lblTableRights.Padding = new System.Windows.Forms.Padding(2, 4, 0, 2);
             this.lblTableRights.Size = new System.Drawing.Size(706, 22);
             this.lblTableRights.Text = "Table-level rights";
-            // 
+            //
             // gridRights
-            // 
+            //
             this.gridRights.AllowUserToAddRows = false;
             this.gridRights.AllowUserToDeleteRows = false;
             this.gridRights.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
@@ -412,18 +384,18 @@ namespace SqlQuery.Forms
             this.gridRights.ReadOnly = true;
             this.gridRights.Size = new System.Drawing.Size(706, 178);
             this.gridRights.TabIndex = 0;
-            // 
+            //
             // lblColumnRights
-            // 
+            //
             this.lblColumnRights.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblColumnRights.Location = new System.Drawing.Point(0, 0);
             this.lblColumnRights.Name = "lblColumnRights";
             this.lblColumnRights.Padding = new System.Windows.Forms.Padding(2, 4, 0, 2);
             this.lblColumnRights.Size = new System.Drawing.Size(706, 22);
             this.lblColumnRights.Text = "Column-level (field) rights";
-            // 
+            //
             // gridColumnRights
-            // 
+            //
             this.gridColumnRights.AllowUserToAddRows = false;
             this.gridColumnRights.AllowUserToDeleteRows = false;
             this.gridColumnRights.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
@@ -434,9 +406,9 @@ namespace SqlQuery.Forms
             this.gridColumnRights.ReadOnly = true;
             this.gridColumnRights.Size = new System.Drawing.Size(706, 256);
             this.gridColumnRights.TabIndex = 0;
-            // 
+            //
             // tpSchema
-            // 
+            //
             this.tpSchema.Controls.Add(this.txtSchema);
             this.tpSchema.Location = new System.Drawing.Point(4, 22);
             this.tpSchema.Name = "tpSchema";
@@ -444,9 +416,9 @@ namespace SqlQuery.Forms
             this.tpSchema.Size = new System.Drawing.Size(712, 488);
             this.tpSchema.Text = "Schema DDL";
             this.tpSchema.UseVisualStyleBackColor = true;
-            // 
+            //
             // txtSchema
-            // 
+            //
             this.txtSchema.BackColor = System.Drawing.Color.White;
             this.txtSchema.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSchema.Font = new System.Drawing.Font("Consolas", 10F);
@@ -458,32 +430,76 @@ namespace SqlQuery.Forms
             this.txtSchema.Size = new System.Drawing.Size(706, 482);
             this.txtSchema.TabIndex = 0;
             this.txtSchema.WordWrap = false;
-            // 
+            //
+            // tpCode
+            //
+            this.tpCode.Controls.Add(this.txtCode);
+            this.tpCode.Controls.Add(this.panelCodeTop);
+            this.tpCode.Location = new System.Drawing.Point(4, 22);
+            this.tpCode.Name = "tpCode";
+            this.tpCode.Padding = new System.Windows.Forms.Padding(3);
+            this.tpCode.Size = new System.Drawing.Size(712, 488);
+            this.tpCode.Text = "C# code";
+            this.tpCode.UseVisualStyleBackColor = true;
+            //
+            // txtCode
+            //
+            this.txtCode.BackColor = System.Drawing.Color.White;
+            this.txtCode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtCode.Font = new System.Drawing.Font("Consolas", 10F);
+            this.txtCode.Location = new System.Drawing.Point(3, 3);
+            this.txtCode.Multiline = true;
+            this.txtCode.Name = "txtCode";
+            this.txtCode.ReadOnly = true;
+            this.txtCode.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtCode.Size = new System.Drawing.Size(706, 452);
+            this.txtCode.TabIndex = 0;
+            this.txtCode.WordWrap = false;
+            //
+            // panelCodeTop
+            //
+            this.panelCodeTop.Controls.Add(this.btnCopyCode);
+            this.panelCodeTop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelCodeTop.Location = new System.Drawing.Point(3, 3);
+            this.panelCodeTop.Name = "panelCodeTop";
+            this.panelCodeTop.Size = new System.Drawing.Size(706, 36);
+            this.panelCodeTop.TabIndex = 1;
+            //
+            // btnCopyCode
+            //
+            this.btnCopyCode.Location = new System.Drawing.Point(4, 5);
+            this.btnCopyCode.Name = "btnCopyCode";
+            this.btnCopyCode.Size = new System.Drawing.Size(140, 26);
+            this.btnCopyCode.TabIndex = 0;
+            this.btnCopyCode.Text = "Copy to Clipboard";
+            this.btnCopyCode.UseVisualStyleBackColor = true;
+            this.btnCopyCode.Click += new System.EventHandler(this.btnCopyCode_Click);
+            //
             // statusStrip1
-            // 
+            //
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblStatus,
             this.lblRows});
             this.statusStrip1.Location = new System.Drawing.Point(0, 539);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(984, 22);
-            // 
+            //
             // lblStatus
-            // 
+            //
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(900, 17);
             this.lblStatus.Spring = true;
             this.lblStatus.Text = "Ready";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
+            //
             // lblRows
-            // 
+            //
             this.lblRows.Name = "lblRows";
             this.lblRows.Size = new System.Drawing.Size(69, 17);
             this.lblRows.Text = "";
-            // 
+            //
             // MainForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 561);
@@ -530,6 +546,9 @@ namespace SqlQuery.Forms
             ((System.ComponentModel.ISupportInitialize)(this.gridColumnRights)).EndInit();
             this.tpSchema.ResumeLayout(false);
             this.tpSchema.PerformLayout();
+            this.tpCode.ResumeLayout(false);
+            this.tpCode.PerformLayout();
+            this.panelCodeTop.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -539,12 +558,8 @@ namespace SqlQuery.Forms
         #endregion
 
         private System.Windows.Forms.ToolStrip toolStripMain;
-        private System.Windows.Forms.ToolStripButton btnConnect;
         private System.Windows.Forms.ToolStripButton btnNewConnection;
-        private System.Windows.Forms.ToolStripButton btnEditConnection;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripComboBox cmbConnections;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton btnExecute;
         private System.Windows.Forms.ToolStripButton btnRefreshSchema;
         private System.Windows.Forms.ToolStripButton btnDisconnect;
@@ -574,6 +589,10 @@ namespace SqlQuery.Forms
         private System.Windows.Forms.DataGridView gridColumnRights;
         private System.Windows.Forms.TabPage tpSchema;
         private System.Windows.Forms.TextBox txtSchema;
+        private System.Windows.Forms.TabPage tpCode;
+        private System.Windows.Forms.TextBox txtCode;
+        private System.Windows.Forms.Panel panelCodeTop;
+        private System.Windows.Forms.Button btnCopyCode;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel lblStatus;
         private System.Windows.Forms.ToolStripStatusLabel lblRows;

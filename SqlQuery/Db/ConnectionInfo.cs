@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+using MySqlConnector;
 using Npgsql;
 
 namespace SqlQuery.Db
@@ -9,7 +10,8 @@ namespace SqlQuery.Db
     {
         SqlServer = 0,
         Sqlite = 1,
-        PostgreSql = 2
+        PostgreSql = 2,
+        MySql = 3
     }
 
     public class ConnectionInfo
@@ -70,6 +72,16 @@ namespace SqlQuery.Db
                         builder.Username = UserName;
                         builder.Password = Password;
                         builder.Database = string.IsNullOrEmpty(Database) ? "postgres" : Database;
+                        return builder.ConnectionString;
+                    }
+                case ServerType.MySql:
+                    {
+                        MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
+                        builder.Server = Server;
+                        builder.Port = (uint)(Port <= 0 ? 3306 : Port);
+                        builder.UserID = UserName;
+                        builder.Password = Password;
+                        builder.Database = string.IsNullOrEmpty(Database) ? null : Database;
                         return builder.ConnectionString;
                     }
                 default:

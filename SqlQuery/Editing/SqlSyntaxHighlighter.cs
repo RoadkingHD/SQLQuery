@@ -89,7 +89,10 @@ namespace SqlQuery.Editing
                 }
                 box.SelectionStart = selectionStart;
                 box.SelectionLength = selectionLength;
-                box.SelectionColor = box.ForeColor;
+                if (selectionLength == 0)
+                {
+                    box.SelectionColor = box.ForeColor;
+                }
             }
             finally
             {

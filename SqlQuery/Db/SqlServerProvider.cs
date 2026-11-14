@@ -98,21 +98,46 @@ namespace SqlQuery.Db
             });
         }
 
+        public override DataTable GetProcedures()
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                return Fill(connection,
+                    "SELECT s.name AS table_schema, p.name AS table_name " +
+                    "FROM sys.procedures p JOIN sys.schemas s ON s.schema_id = p.schema_id " +
+                    "ORDER BY table_schema, table_name", null);
+            });
+        }
+
+        public override List<string> GetDatabases()
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                List<string> names = new List<string>();
+                foreach (DataRow row in Fill(connection,
+                    "SELECT name FROM sys.databases WHERE state = 0 ORDER BY name", null).Rows)
+                {
+                    names.Add(Convert.ToString(row["name"]));
+                }
+                return names;
+            });
+        }
+
         public override DataTable GetTableRights()
         {
             return WithConnection(delegate(DbConnection connection)
             {
                 return Fill(connection,
-                    "SELECT USER_NAME(p.grantee_principal_id) AS grantee, " +
-                    "p.permission_name AS permission, " +
-                    "p.state_desc AS state, " +
-                    "s.name + '.' + o.name AS object_name, " +
-                    "'' AS column_name " +
-                    "FROM sys.database_permissions p " +
-                    "JOIN sys.objects o ON o.object_id = p.major_id " +
+                    "SELECT s.name + '.' + o.name AS object_name, " +
+                    "perm.permission AS permission, " +
+                    "USER_NAME() AS grantee, " +
+                    "CASE WHEN HAS_PERMS_BY_NAME(s.name + '.' + o.name, 'OBJECT', perm.permission) " +
+                    "THEN 'GRANTED' ELSE 'DENIED' END AS state " +
+                    "FROM sys.objects o " +
                     "JOIN sys.schemas s ON s.schema_id = o.schema_id " +
-                    "WHERE p.class = 1 AND p.minor_id = 0 AND o.type IN ('U','V') " +
-                    "ORDER BY object_name, grantee, permission", null);
+                    "CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('DELETE'),('ALTER'),('CONTROL')) AS perm(permission) " +
+                    "WHERE o.type IN ('U','V') " +
+                    "ORDER BY object_name, permission", null);
             });
         }
 
