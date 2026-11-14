@@ -72,11 +72,13 @@ NuGet packages used:
 - `Npgsql` 4.1.14 (PostgreSQL, supports .NET Framework 4.6.1+)
 - `System.Data.SQLite.Core` 1.0.118 (SQLite with native interop)
 - `MySqlConnector` 2.3.7 (MySQL, .NET Framework 4.6.1+)
+- `Costura.Fody` 5.7.0 + `Fody` 6.8.1 (build-time only) — embed all referenced assemblies and the native `SQLite.Interop.dll` (x86 + x64) into the single `SqlQuery.exe`
 
 SQL Server support is built into .NET Framework (System.Data.SqlClient) — no package needed.
 
 ## Notes
 
 - Connections are **not persisted**. Every session starts unconnected; use **New Connection...** and connect in the dialog.
+- The build produces a **single self-contained `SqlQuery.exe`**: all provider libraries and the SQLite native interop are embedded via Costura (configured in `FodyWeavers.xml`); no DLLs or x86/x64 folders are needed next to the executable.
 - The "Rights" tab lists the **effective** permissions of the connected user, so owners/admins see their implicit rights too (explicit grants only are often empty on development databases).
 - The Schema DDL for SQL Server/PostgreSQL/MySQL is generated from catalog metadata (columns, nullability, defaults, primary key). Other constraints/indexes are listed in the Rights tab but not scripted.

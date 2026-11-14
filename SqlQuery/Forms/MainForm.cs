@@ -327,6 +327,7 @@ namespace SqlQuery.Forms
             try
             {
                 txtDefinition.Text = provider.GetObjectDefinition(tableRef.Schema, tableRef.Name, tableRef.Type);
+                SqlSyntaxHighlighter.Apply(txtDefinition);
                 tabMain.SelectedTab = tpDefinition;
             }
             catch (Exception ex)

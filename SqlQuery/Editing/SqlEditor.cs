@@ -10,7 +10,7 @@ namespace SqlQuery.Editing
         private readonly Timer highlightTimer;
         private bool suppressCompletion;
 
-        private ToolStripDropDown completionPopup;
+        private CompletionPopupForm completionPopup;
         private ListBox completionList;
         private string currentPrefix = string.Empty;
 
@@ -82,10 +82,6 @@ namespace SqlQuery.Editing
             {
                 return;
             }
-            if (completionPopup.ContainsFocus)
-            {
-                return;
-            }
             if (completionPopup.RectangleToScreen(completionPopup.ClientRectangle).Contains(Cursor.Position))
             {
                 return;
@@ -107,6 +103,7 @@ namespace SqlQuery.Editing
                 if (completionPopup != null)
                 {
                     completionPopup.Dispose();
+                    completionPopup = null;
                 }
             }
             base.Dispose(disposing);
@@ -184,21 +181,16 @@ namespace SqlQuery.Editing
             {
                 height = 40;
             }
-            ToolStripControlHost host = (ToolStripControlHost)completionPopup.Items[0];
-            host.Size = new Size(360, height);
-            completionList.Size = host.Size;
+            completionList.Size = new Size(360, height);
+            completionPopup.Size = new Size(360, height);
             Point location = GetPositionFromCharIndex(SelectionStart);
             location.Y += Font.Height + 2;
             location.X += 2;
-            if (completionPopup.Visible)
+            completionPopup.Location = PointToScreen(location);
+            if (!completionPopup.Visible)
             {
-                completionPopup.Location = PointToScreen(location);
+                completionPopup.Show(this);
             }
-            else
-            {
-                completionPopup.Show(this, location);
-            }
-            Focus();
         }
 
         private void EnsurePopup()
@@ -213,16 +205,8 @@ namespace SqlQuery.Editing
             completionList.Font = new Font("Consolas", 9f);
             completionList.Click += delegate { AcceptCompletion(); };
             completionList.DoubleClick += delegate { AcceptCompletion(); };
-            ToolStripControlHost host = new ToolStripControlHost(completionList);
-            host.Margin = Padding.Empty;
-            host.Padding = Padding.Empty;
-            host.AutoSize = false;
-            completionPopup = new ToolStripDropDown();
-            completionPopup.AutoClose = false;
-            completionPopup.Margin = Padding.Empty;
-            completionPopup.Padding = Padding.Empty;
-            completionPopup.DropShadowEnabled = true;
-            completionPopup.Items.Add(host);
+            completionPopup = new CompletionPopupForm();
+            completionPopup.Controls.Add(completionList);
         }
 
         private void AcceptCompletion()
@@ -258,7 +242,39 @@ namespace SqlQuery.Editing
         {
             if (completionPopup != null && completionPopup.Visible)
             {
-                completionPopup.Close();
+                completionPopup.Hide();
+            }
+        }
+
+        private class CompletionPopupForm : Form
+        {
+            public CompletionPopupForm()
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                ShowInTaskbar = false;
+                StartPosition = FormStartPosition.Manual;
+                TopMost = true;
+                BackColor = SystemColors.Window;
+            }
+
+            protected override bool ShowWithoutActivation
+            {
+                get { return true; }
+            }
+
+            protected override CreateParams CreateParams
+            {
+                get
+                {
+                    CreateParams cp = base.CreateParams;
+                    cp.ExStyle |= 0x08000000;
+                    return cp;
+                }
+            }
+
+            protected override bool ProcessTabKey(bool forward)
+            {
+                return false;
             }
         }
     }

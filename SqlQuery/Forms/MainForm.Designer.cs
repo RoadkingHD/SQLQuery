@@ -43,7 +43,7 @@ namespace SqlQuery.Forms
             this.tpColumns = new System.Windows.Forms.TabPage();
             this.gridColumns = new System.Windows.Forms.DataGridView();
             this.tpDefinition = new System.Windows.Forms.TabPage();
-            this.txtDefinition = new System.Windows.Forms.TextBox();
+            this.txtDefinition = new System.Windows.Forms.RichTextBox();
             this.tpRights = new System.Windows.Forms.TabPage();
             this.splitRights = new System.Windows.Forms.SplitContainer();
             this.lblTableRights = new System.Windows.Forms.Label();
@@ -612,7 +612,7 @@ namespace SqlQuery.Forms
         private System.Windows.Forms.TabPage tpColumns;
         private System.Windows.Forms.DataGridView gridColumns;
         private System.Windows.Forms.TabPage tpDefinition;
-        private System.Windows.Forms.TextBox txtDefinition;
+        private System.Windows.Forms.RichTextBox txtDefinition;
         private System.Windows.Forms.TabPage tpRights;
         private System.Windows.Forms.SplitContainer splitRights;
         private System.Windows.Forms.Label lblTableRights;
