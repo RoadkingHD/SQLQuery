@@ -24,7 +24,6 @@ namespace SqlQuery.Editing
             Font = new Font("Consolas", 10f);
             WordWrap = false;
             AcceptsTab = true;
-            AcceptsReturn = true;
             HideSelection = false;
             DetectUrls = false;
             highlightTimer = new Timer();

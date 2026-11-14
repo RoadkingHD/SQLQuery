@@ -253,7 +253,6 @@ namespace SqlQuery.Forms
             // 
             // editor
             // 
-            this.editor.AcceptsReturn = true;
             this.editor.AcceptsTab = true;
             this.editor.DetectUrls = false;
             this.editor.Dock = System.Windows.Forms.DockStyle.Fill;
