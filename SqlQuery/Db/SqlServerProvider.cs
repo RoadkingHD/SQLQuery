@@ -129,13 +129,12 @@ namespace SqlQuery.Db
             {
                 return Fill(connection,
                     "SELECT s.name + '.' + o.name AS object_name, " +
-                    "perm.permission AS permission, " +
+                    "perms.permission_name AS permission, " +
                     "USER_NAME() AS grantee, " +
-                    "CASE WHEN HAS_PERMS_BY_NAME(s.name + '.' + o.name, 'OBJECT', perm.permission) " +
-                    "THEN 'GRANTED' ELSE 'DENIED' END AS state " +
+                    "'GRANTED' AS state " +
                     "FROM sys.objects o " +
                     "JOIN sys.schemas s ON s.schema_id = o.schema_id " +
-                    "CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('DELETE'),('ALTER'),('CONTROL')) AS perm(permission) " +
+                    "CROSS APPLY sys.fn_my_permissions(QUOTENAME(s.name) + '.' + QUOTENAME(o.name), 'OBJECT') perms " +
                     "WHERE o.type IN ('U','V') " +
                     "ORDER BY object_name, permission", null);
             });

@@ -406,7 +406,7 @@ namespace SqlQuery.Forms
                                 {
                                     result = table;
                                 }
-                                if (!reader.NextResult())
+                                if (reader.IsClosed || !reader.NextResult())
                                 {
                                     break;
                                 }
