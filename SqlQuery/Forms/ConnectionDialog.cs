@@ -195,6 +195,7 @@ namespace SqlQuery.Forms
                 return;
             }
             Connection = info;
+            DialogResult = DialogResult.OK;
         }
 
         private static string ValidateInfo(ConnectionInfo info)
