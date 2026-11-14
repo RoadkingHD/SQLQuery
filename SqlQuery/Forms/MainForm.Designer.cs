@@ -38,8 +38,6 @@ namespace SqlQuery.Forms
             this.gridResults = new System.Windows.Forms.DataGridView();
             this.tpMessages = new System.Windows.Forms.TabPage();
             this.txtMessages = new System.Windows.Forms.TextBox();
-            this.tpTables = new System.Windows.Forms.TabPage();
-            this.gridTables = new System.Windows.Forms.DataGridView();
             this.tpColumns = new System.Windows.Forms.TabPage();
             this.gridColumns = new System.Windows.Forms.DataGridView();
             this.tpDefinition = new System.Windows.Forms.TabPage();
@@ -75,8 +73,6 @@ namespace SqlQuery.Forms
             this.tpData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridResults)).BeginInit();
             this.tpMessages.SuspendLayout();
-            this.tpTables.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gridTables)).BeginInit();
             this.tpColumns.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridColumns)).BeginInit();
             this.tpDefinition.SuspendLayout();
@@ -191,7 +187,6 @@ namespace SqlQuery.Forms
             // tabMain
             //
             this.tabMain.Controls.Add(this.tpQuery);
-            this.tabMain.Controls.Add(this.tpTables);
             this.tabMain.Controls.Add(this.tpColumns);
             this.tabMain.Controls.Add(this.tpDefinition);
             this.tabMain.Controls.Add(this.tpRights);
@@ -296,29 +291,6 @@ namespace SqlQuery.Forms
             this.txtMessages.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtMessages.Size = new System.Drawing.Size(692, 226);
             this.txtMessages.TabIndex = 0;
-            //
-            // tpTables
-            //
-            this.tpTables.Controls.Add(this.gridTables);
-            this.tpTables.Location = new System.Drawing.Point(4, 22);
-            this.tpTables.Name = "tpTables";
-            this.tpTables.Padding = new System.Windows.Forms.Padding(3);
-            this.tpTables.Size = new System.Drawing.Size(712, 488);
-            this.tpTables.Text = "Tables";
-            this.tpTables.UseVisualStyleBackColor = true;
-            //
-            // gridTables
-            //
-            this.gridTables.AllowUserToAddRows = false;
-            this.gridTables.AllowUserToDeleteRows = false;
-            this.gridTables.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            this.gridTables.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridTables.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridTables.Location = new System.Drawing.Point(3, 3);
-            this.gridTables.Name = "gridTables";
-            this.gridTables.ReadOnly = true;
-            this.gridTables.Size = new System.Drawing.Size(706, 482);
-            this.gridTables.TabIndex = 0;
             //
             // tpColumns
             //
@@ -559,8 +531,6 @@ namespace SqlQuery.Forms
             ((System.ComponentModel.ISupportInitialize)(this.gridResults)).EndInit();
             this.tpMessages.ResumeLayout(false);
             this.tpMessages.PerformLayout();
-            this.tpTables.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.gridTables)).EndInit();
             this.tpColumns.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridColumns)).EndInit();
             this.tpDefinition.ResumeLayout(false);
@@ -607,8 +577,6 @@ namespace SqlQuery.Forms
         private System.Windows.Forms.DataGridView gridResults;
         private System.Windows.Forms.TabPage tpMessages;
         private System.Windows.Forms.TextBox txtMessages;
-        private System.Windows.Forms.TabPage tpTables;
-        private System.Windows.Forms.DataGridView gridTables;
         private System.Windows.Forms.TabPage tpColumns;
         private System.Windows.Forms.DataGridView gridColumns;
         private System.Windows.Forms.TabPage tpDefinition;

@@ -18,7 +18,6 @@ namespace SqlQuery.Forms
 
         private DbProviderBase provider;
         private ConnectionInfo currentConnection;
-        private bool tablesLoaded;
         private bool rightsLoaded;
         private bool schemaLoaded;
 
@@ -105,14 +104,12 @@ namespace SqlQuery.Forms
             tvSchema.Nodes.Clear();
             editor.Completion.ClearSchema();
             gridResults.DataSource = null;
-            gridTables.DataSource = null;
             gridColumns.DataSource = null;
             gridRights.DataSource = null;
             gridColumnRights.DataSource = null;
             txtSchema.Clear();
             txtCode.Clear();
             txtDefinition.Clear();
-            tablesLoaded = false;
             rightsLoaded = false;
             schemaLoaded = false;
             Text = "SqlQuery";
@@ -135,7 +132,6 @@ namespace SqlQuery.Forms
             {
                 BuildSchemaTree();
                 editor.Completion.SetTables(provider.GetCompletionTables());
-                tablesLoaded = false;
                 rightsLoaded = false;
                 schemaLoaded = false;
                 SetStatus("Schema refreshed.");
@@ -168,7 +164,6 @@ namespace SqlQuery.Forms
                 provider = DbProviderBase.Create(info);
                 provider.TestConnection();
                 currentConnection = info;
-                tablesLoaded = false;
                 rightsLoaded = false;
                 schemaLoaded = false;
                 BuildSchemaTree();
@@ -363,12 +358,7 @@ namespace SqlQuery.Forms
             }
             try
             {
-                if (tabMain.SelectedTab == tpTables && !tablesLoaded)
-                {
-                    gridTables.DataSource = provider.GetTables();
-                    tablesLoaded = true;
-                }
-                else if (tabMain.SelectedTab == tpRights && !rightsLoaded)
+                if (tabMain.SelectedTab == tpRights && !rightsLoaded)
                 {
                     gridRights.DataSource = provider.GetTableRights();
                     gridColumnRights.DataSource = provider.GetColumnRights();

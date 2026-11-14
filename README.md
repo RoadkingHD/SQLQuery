@@ -11,7 +11,6 @@ A full-English Windows Forms (C#, .NET Framework 4.7.2) desktop tool to connect 
   - MySQL (MySqlConnector)
 - **New Connection dialog**: pick the server type, enter server/credentials, click **Test Connection** — on success the **Database** combo box is filled with the databases available on the server (SQLite asks for a file instead). Clicking **Connect** (OK) connects immediately. **Connection strings are not saved**; nothing is persisted between sessions.
 - **Schema browser (TreeView)** with icons: **tables, views, and stored procedures** grouped per provider, with columns shown on the Columns tab when a table or view is selected.
-- **Tables tab**: all tables and views with schema and type.
 - **Columns tab**: columns of the table selected in the tree (name, type, nullability, default, identity).
 - **Definition tab**: selecting a **view** or **stored procedure** in the tree shows its SQL definition (`sys.sql_modules`, `pg_get_viewdef`/`pg_get_functiondef`, `SHOW CREATE VIEW/PROCEDURE`, `sqlite_master`).
 - **Rights tab**: **effective** permissions of the connected user
