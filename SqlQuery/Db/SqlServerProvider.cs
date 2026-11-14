@@ -155,6 +155,59 @@ namespace SqlQuery.Db
             return sb.ToString();
         }
 
+        public override string GetClrType(string dataType)
+        {
+            switch (dataType.ToLowerInvariant())
+            {
+                case "bigint":
+                    return "long";
+                case "binary":
+                case "image":
+                case "rowversion":
+                case "timestamp":
+                case "varbinary":
+                    return "byte[]";
+                case "bit":
+                    return "bool";
+                case "char":
+                case "nchar":
+                case "ntext":
+                case "nvarchar":
+                case "text":
+                case "varchar":
+                case "xml":
+                    return "string";
+                case "date":
+                case "datetime":
+                case "datetime2":
+                case "smalldatetime":
+                    return "DateTime";
+                case "datetimeoffset":
+                    return "DateTimeOffset";
+                case "decimal":
+                case "money":
+                case "numeric":
+                case "smallmoney":
+                    return "decimal";
+                case "float":
+                    return "double";
+                case "int":
+                    return "int";
+                case "real":
+                    return "float";
+                case "smallint":
+                    return "short";
+                case "time":
+                    return "TimeSpan";
+                case "tinyint":
+                    return "byte";
+                case "uniqueidentifier":
+                    return "Guid";
+                default:
+                    return "object";
+            }
+        }
+
         public override string BuildSelectTop(TableRef table, int limit)
         {
             return "SELECT TOP " + limit + " * FROM " + QuoteFullName(table.Schema, table.Name);

@@ -490,5 +490,32 @@ namespace SqlQuery.Forms
             tabMain.SelectedTab = tpQuery;
             editor.Focus();
         }
+
+        private void mnuDumpClass_Click(object sender, EventArgs e)
+        {
+            if (provider == null || tvSchema.SelectedNode == null)
+            {
+                return;
+            }
+            TableRef tableRef = tvSchema.SelectedNode.Tag as TableRef;
+            if (tableRef == null)
+            {
+                return;
+            }
+            try
+            {
+                string code = provider.BuildCSharpClass(tableRef);
+                using (CodeDialog dialog = new CodeDialog())
+                {
+                    dialog.DialogTitle = "C# class - " + tableRef.FullName;
+                    dialog.CodeText = code;
+                    dialog.ShowDialog(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

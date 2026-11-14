@@ -105,6 +105,90 @@ namespace SqlQuery.Db
             }
         }
 
+        public abstract string GetClrType(string dataType);
+
+        public string BuildCSharpClass(TableRef table)
+        {
+            DataTable columns = GetColumns(table.Schema, table.Name);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("public class " + ToPascalIdentifier(table.Name));
+            sb.AppendLine("{");
+            foreach (DataRow row in columns.Rows)
+            {
+                string columnName = Convert.ToString(row["column_name"]);
+                string dataType = Convert.ToString(row["data_type"]);
+                bool nullable = IsNullableValue(row["is_nullable"]);
+                string clrType = GetClrType(dataType);
+                if (nullable && IsClrValueType(clrType))
+                {
+                    clrType = clrType + "?";
+                }
+                string propertyName = ToPascalIdentifier(columnName);
+                sb.Append("    public ").Append(clrType).Append(' ').Append(propertyName).Append(" { get; set; }");
+                if (!string.Equals(propertyName, columnName, StringComparison.Ordinal))
+                {
+                    sb.Append(" // source column: ").Append(columnName);
+                }
+                sb.AppendLine();
+            }
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
+
+        private static bool IsClrValueType(string clrType)
+        {
+            switch (clrType)
+            {
+                case "int":
+                case "long":
+                case "short":
+                case "byte":
+                case "bool":
+                case "double":
+                case "float":
+                case "decimal":
+                case "DateTime":
+                case "DateTimeOffset":
+                case "TimeSpan":
+                case "Guid":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static string ToPascalIdentifier(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return "Column";
+            }
+            StringBuilder sb = new StringBuilder();
+            bool upperNext = true;
+            foreach (char c in name)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    sb.Append(upperNext ? char.ToUpperInvariant(c) : c);
+                    upperNext = false;
+                }
+                else
+                {
+                    upperNext = true;
+                }
+            }
+            string result = sb.ToString();
+            if (result.Length == 0)
+            {
+                return "Column";
+            }
+            if (char.IsDigit(result[0]))
+            {
+                result = "_" + result;
+            }
+            return result;
+        }
+
         protected string QuoteFullName(string schema, string table)
         {
             return string.IsNullOrEmpty(schema) ? QuoteIdentifier(table) : QuoteIdentifier(schema) + "." + QuoteIdentifier(table);
