@@ -42,6 +42,8 @@ namespace SqlQuery.Forms
             this.gridTables = new System.Windows.Forms.DataGridView();
             this.tpColumns = new System.Windows.Forms.TabPage();
             this.gridColumns = new System.Windows.Forms.DataGridView();
+            this.tpDefinition = new System.Windows.Forms.TabPage();
+            this.txtDefinition = new System.Windows.Forms.TextBox();
             this.tpRights = new System.Windows.Forms.TabPage();
             this.splitRights = new System.Windows.Forms.SplitContainer();
             this.lblTableRights = new System.Windows.Forms.Label();
@@ -77,6 +79,7 @@ namespace SqlQuery.Forms
             ((System.ComponentModel.ISupportInitialize)(this.gridTables)).BeginInit();
             this.tpColumns.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridColumns)).BeginInit();
+            this.tpDefinition.SuspendLayout();
             this.tpRights.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitRights)).BeginInit();
             this.splitRights.Panel1.SuspendLayout();
@@ -190,6 +193,7 @@ namespace SqlQuery.Forms
             this.tabMain.Controls.Add(this.tpQuery);
             this.tabMain.Controls.Add(this.tpTables);
             this.tabMain.Controls.Add(this.tpColumns);
+            this.tabMain.Controls.Add(this.tpDefinition);
             this.tabMain.Controls.Add(this.tpRights);
             this.tabMain.Controls.Add(this.tpSchema);
             this.tabMain.Controls.Add(this.tpCode);
@@ -338,6 +342,30 @@ namespace SqlQuery.Forms
             this.gridColumns.ReadOnly = true;
             this.gridColumns.Size = new System.Drawing.Size(706, 482);
             this.gridColumns.TabIndex = 0;
+            // 
+            // tpDefinition
+            // 
+            this.tpDefinition.Controls.Add(this.txtDefinition);
+            this.tpDefinition.Location = new System.Drawing.Point(4, 22);
+            this.tpDefinition.Name = "tpDefinition";
+            this.tpDefinition.Padding = new System.Windows.Forms.Padding(3);
+            this.tpDefinition.Size = new System.Drawing.Size(712, 488);
+            this.tpDefinition.Text = "Definition";
+            this.tpDefinition.UseVisualStyleBackColor = true;
+            // 
+            // txtDefinition
+            // 
+            this.txtDefinition.BackColor = System.Drawing.Color.White;
+            this.txtDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtDefinition.Font = new System.Drawing.Font("Consolas", 10F);
+            this.txtDefinition.Location = new System.Drawing.Point(3, 3);
+            this.txtDefinition.Multiline = true;
+            this.txtDefinition.Name = "txtDefinition";
+            this.txtDefinition.ReadOnly = true;
+            this.txtDefinition.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtDefinition.Size = new System.Drawing.Size(706, 482);
+            this.txtDefinition.TabIndex = 0;
+            this.txtDefinition.WordWrap = false;
             //
             // tpRights
             //
@@ -535,6 +563,8 @@ namespace SqlQuery.Forms
             ((System.ComponentModel.ISupportInitialize)(this.gridTables)).EndInit();
             this.tpColumns.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridColumns)).EndInit();
+            this.tpDefinition.ResumeLayout(false);
+            this.tpDefinition.PerformLayout();
             this.tpRights.ResumeLayout(false);
             this.splitRights.Panel1.ResumeLayout(false);
             this.splitRights.Panel1.PerformLayout();
@@ -581,6 +611,8 @@ namespace SqlQuery.Forms
         private System.Windows.Forms.DataGridView gridTables;
         private System.Windows.Forms.TabPage tpColumns;
         private System.Windows.Forms.DataGridView gridColumns;
+        private System.Windows.Forms.TabPage tpDefinition;
+        private System.Windows.Forms.TextBox txtDefinition;
         private System.Windows.Forms.TabPage tpRights;
         private System.Windows.Forms.SplitContainer splitRights;
         private System.Windows.Forms.Label lblTableRights;

@@ -111,6 +111,7 @@ namespace SqlQuery.Forms
             gridColumnRights.DataSource = null;
             txtSchema.Clear();
             txtCode.Clear();
+            txtDefinition.Clear();
             tablesLoaded = false;
             rightsLoaded = false;
             schemaLoaded = false;
@@ -308,12 +309,30 @@ namespace SqlQuery.Forms
         private void tvSchema_AfterSelect(object sender, TreeViewEventArgs e)
         {
             TableRef tableRef = e.Node.Tag as TableRef;
-            if (tableRef == null || tableRef.Type == "PROCEDURE")
+            if (tableRef == null)
             {
+                return;
+            }
+            if (tableRef.Type == "VIEW" || tableRef.Type == "PROCEDURE")
+            {
+                LoadDefinition(tableRef);
                 return;
             }
             tabMain.SelectedTab = tpColumns;
             LoadColumns(tableRef);
+        }
+
+        private void LoadDefinition(TableRef tableRef)
+        {
+            try
+            {
+                txtDefinition.Text = provider.GetObjectDefinition(tableRef.Schema, tableRef.Name, tableRef.Type);
+                tabMain.SelectedTab = tpDefinition;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadColumns(TableRef tableRef)

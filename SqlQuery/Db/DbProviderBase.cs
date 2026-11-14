@@ -29,6 +29,8 @@ namespace SqlQuery.Db
 
         public abstract DataTable GetIndexes(string schema, string table);
 
+        public abstract string GetObjectDefinition(string schema, string name, string type);
+
         public abstract DataTable GetTableRights();
 
         public abstract DataTable GetColumnRights();

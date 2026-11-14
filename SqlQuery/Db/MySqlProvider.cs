@@ -145,18 +145,47 @@ namespace SqlQuery.Db
             });
         }
 
+        public override string GetObjectDefinition(string schema, string name, string type)
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                string quoted = "`" + schema.Replace("`", "``") + "`.`" + name.Replace("`", "``") + "`";
+                string sql = type == "PROCEDURE"
+                    ? "SHOW CREATE PROCEDURE " + quoted
+                    : "SHOW CREATE VIEW " + quoted;
+                DataTable result = Fill(connection, sql, null);
+                if (result.Rows.Count == 0)
+                {
+                    return "-- Definition not found for " + schema + "." + name;
+                }
+                return Convert.ToString(result.Rows[0][2]);
+            });
+        }
+
         public override DataTable GetColumnRights()
         {
             return WithConnection(delegate(DbConnection connection)
             {
                 return Fill(connection,
-                    "SELECT CONCAT(TABLE_SCHEMA, '.', TABLE_NAME, '.', COLUMN_NAME) AS object_name, " +
-                    "PRIVILEGE_TYPE AS permission, " +
-                    "GRANTEE AS grantee, " +
-                    "'GRANTED' AS state " +
+                    "SELECT CONCAT(c.TABLE_SCHEMA, '.', c.TABLE_NAME, '.', c.COLUMN_NAME) AS object_name, " +
+                    "tp.PRIVILEGE_TYPE AS permission, " +
+                    "tp.GRANTEE AS grantee, " +
+                    "'GRANTED' AS state, " +
+                    "c.COLUMN_NAME AS column_name " +
+                    "FROM information_schema.COLUMNS c " +
+                    "JOIN information_schema.TABLE_PRIVILEGES tp " +
+                    "ON tp.TABLE_SCHEMA = c.TABLE_SCHEMA AND tp.TABLE_NAME = c.TABLE_NAME " +
+                    "AND tp.PRIVILEGE_TYPE IN ('SELECT','UPDATE') " +
+                    "WHERE c.TABLE_SCHEMA NOT IN " + ExcludeSystemSchemas + " " +
+                    "UNION " +
+                    "SELECT CONCAT(TABLE_SCHEMA, '.', TABLE_NAME, '.', COLUMN_NAME), " +
+                    "PRIVILEGE_TYPE, " +
+                    "GRANTEE, " +
+                    "'GRANTED', " +
+                    "COLUMN_NAME " +
                     "FROM information_schema.column_privileges " +
                     "WHERE TABLE_SCHEMA NOT IN " + ExcludeSystemSchemas + " " +
-                    "ORDER BY object_name, permission", null);
+                    "ORDER BY object_name, column_name, permission", null);
             });
         }
 

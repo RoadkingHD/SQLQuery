@@ -13,10 +13,11 @@ A full-English Windows Forms (C#, .NET Framework 4.7.2) desktop tool to connect 
 - **Schema browser (TreeView)** with icons: **tables, views, and stored procedures** grouped per provider, with columns shown on the Columns tab when a table or view is selected.
 - **Tables tab**: all tables and views with schema and type.
 - **Columns tab**: columns of the table selected in the tree (name, type, nullability, default, identity).
+- **Definition tab**: selecting a **view** or **stored procedure** in the tree shows its SQL definition (`sys.sql_modules`, `pg_get_viewdef`/`pg_get_functiondef`, `SHOW CREATE VIEW/PROCEDURE`, `sqlite_master`).
 - **Rights tab**: **effective** permissions of the connected user
   - SQL Server: `HAS_PERMS_BY_NAME` over SELECT / INSERT / UPDATE / DELETE / ALTER / CONTROL for every table and view, plus column-level grants
   - PostgreSQL: `has_table_privilege` over SELECT / INSERT / UPDATE / DELETE / REFERENCES / TRIGGER, plus column-level privileges
-  - MySQL: `information_schema` table and column privileges
+  - MySQL: `information_schema` table and column privileges, plus table-level SELECT/UPDATE expanded per column
   - SQLite: informational note (SQLite has no per-user privileges; access control is file-level)
 - **Schema DDL tab**: generated `CREATE TABLE` script for the whole database (SQLite shows its native DDL from `sqlite_master`).
 - **Query tab with SQL editor**:

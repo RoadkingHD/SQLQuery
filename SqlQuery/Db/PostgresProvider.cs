@@ -136,6 +136,35 @@ namespace SqlQuery.Db
             });
         }
 
+        public override string GetObjectDefinition(string schema, string name, string type)
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("@schema", schema);
+                parameters.Add("@name", name);
+                string sql;
+                if (type == "PROCEDURE")
+                {
+                    sql = "SELECT pg_get_functiondef(p.oid) AS definition " +
+                          "FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace " +
+                          "WHERE n.nspname = @schema AND p.proname = @name";
+                }
+                else
+                {
+                    sql = "SELECT pg_get_viewdef(c.oid, true) AS definition " +
+                          "FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace " +
+                          "WHERE n.nspname = @schema AND c.relname = @name AND c.relkind IN ('v','m')";
+                }
+                DataTable result = Fill(connection, sql, parameters);
+                if (result.Rows.Count == 0)
+                {
+                    return "-- Definition not found for " + schema + "." + name;
+                }
+                return Convert.ToString(result.Rows[0][0]);
+            });
+        }
+
         public override DataTable GetTableRights()
         {
             return WithConnection(delegate(DbConnection connection)
@@ -159,17 +188,18 @@ namespace SqlQuery.Db
             return WithConnection(delegate(DbConnection connection)
             {
                 return Fill(connection,
-                    "SELECT COALESCE(gr.rolname, 'PUBLIC') AS grantee, " +
-                    "pr.type AS permission, " +
-                    "n.nspname || '.' || c.relname || '.' || a.attname AS object_name, " +
-                    "CASE WHEN pr.grantable THEN 'YES' ELSE 'NO' END AS is_grantable " +
-                    "FROM pg_attribute a " +
-                    "JOIN pg_class c ON c.oid = a.attrelid " +
+                    "SELECT n.nspname || '.' || c.relname || '.' || a.attname AS object_name, " +
+                    "perm.permission AS permission, " +
+                    "CURRENT_USER AS grantee, " +
+                    "'GRANTED' AS state, " +
+                    "a.attname AS column_name " +
+                    "FROM pg_class c " +
                     "JOIN pg_namespace n ON n.oid = c.relnamespace " +
-                    "CROSS JOIN LATERAL aclexplode(COALESCE(a.attacl, '{}'::aclitem[])) AS pr " +
-                    "LEFT JOIN pg_roles gr ON gr.oid = pr.grantee " +
-                    "WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND a.attnum > 0 AND NOT a.attisdropped " +
-                    "ORDER BY object_name, grantee, permission", null);
+                    "JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped " +
+                    "CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('REFERENCES')) AS perm(permission) " +
+                    "WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND c.relkind IN ('r','v') " +
+                    "AND has_column_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), a.attname, perm.permission) " +
+                    "ORDER BY object_name, column_name, permission", null);
             });
         }
 

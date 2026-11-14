@@ -123,6 +123,27 @@ namespace SqlQuery.Db
             });
         }
 
+        public override string GetObjectDefinition(string schema, string name, string type)
+        {
+            return WithConnection(delegate(DbConnection connection)
+            {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("@schema", schema);
+                parameters.Add("@name", name);
+                DataTable result = Fill(connection,
+                    "SELECT sm.definition " +
+                    "FROM sys.sql_modules sm " +
+                    "JOIN sys.objects o ON o.object_id = sm.object_id " +
+                    "JOIN sys.schemas s ON s.schema_id = o.schema_id " +
+                    "WHERE s.name = @schema AND o.name = @name", parameters);
+                if (result.Rows.Count == 0)
+                {
+                    return "-- Definition not found for " + schema + "." + name;
+                }
+                return Convert.ToString(result.Rows[0][0]);
+            });
+        }
+
         public override DataTable GetTableRights()
         {
             return WithConnection(delegate(DbConnection connection)
@@ -145,17 +166,30 @@ namespace SqlQuery.Db
             return WithConnection(delegate(DbConnection connection)
             {
                 return Fill(connection,
-                    "SELECT USER_NAME(p.grantee_principal_id) AS grantee, " +
-                    "p.permission_name AS permission, " +
-                    "p.state_desc AS state, " +
-                    "s.name + '.' + o.name + '.' + c.name AS object_name, " +
+                    "SELECT DISTINCT s.name + '.' + o.name + '.' + c.name AS object_name, " +
+                    "perm.permission AS permission, " +
+                    "USER_NAME() AS grantee, " +
+                    "'GRANTED' AS state, " +
                     "c.name AS column_name " +
+                    "FROM sys.objects o " +
+                    "JOIN sys.schemas s ON s.schema_id = o.schema_id " +
+                    "JOIN sys.columns c ON c.object_id = o.object_id " +
+                    "CROSS APPLY sys.fn_my_permissions(QUOTENAME(s.name) + '.' + QUOTENAME(o.name), 'OBJECT') f " +
+                    "CROSS JOIN (VALUES ('SELECT'),('UPDATE'),('REFERENCES')) AS perm(permission) " +
+                    "WHERE o.type IN ('U','V') " +
+                    "AND (f.permission_name IN ('CONTROL','ALTER') OR f.permission_name = perm.permission) " +
+                    "UNION " +
+                    "SELECT s.name + '.' + o.name + '.' + c.name, " +
+                    "p.permission_name, " +
+                    "USER_NAME(p.grantee_principal_id), " +
+                    "p.state_desc, " +
+                    "c.name " +
                     "FROM sys.database_permissions p " +
                     "JOIN sys.objects o ON o.object_id = p.major_id " +
                     "JOIN sys.schemas s ON s.schema_id = o.schema_id " +
                     "JOIN sys.columns c ON c.object_id = p.major_id AND c.column_id = p.minor_id " +
                     "WHERE p.class = 1 AND p.minor_id > 0 AND o.type IN ('U','V') " +
-                    "ORDER BY object_name, grantee, permission", null);
+                    "ORDER BY object_name, column_name, permission", null);
             });
         }
 

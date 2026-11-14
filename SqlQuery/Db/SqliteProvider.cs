@@ -158,6 +158,25 @@ namespace SqlQuery.Db
             return RightsNotSupported("SQLite has no per-user privileges; access control is file-level.");
         }
 
+        public override string GetObjectDefinition(string schema, string name, string type)
+        {
+            if (type == "PROCEDURE")
+            {
+                return "-- SQLite has no stored procedures.";
+            }
+            return WithConnection(delegate(DbConnection connection)
+            {
+                DataTable result = Fill(connection,
+                    "SELECT sql FROM sqlite_master WHERE name = @name",
+                    new Dictionary<string, object> { { "@name", name } });
+                if (result.Rows.Count == 0)
+                {
+                    return "-- Definition not found for " + name;
+                }
+                return Convert.ToString(result.Rows[0][0]);
+            });
+        }
+
         public override DataTable GetColumnRights()
         {
             return RightsNotSupported("SQLite has no per-column privileges.");
