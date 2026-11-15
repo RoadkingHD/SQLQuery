@@ -1,6 +1,3 @@
 <Weavers>
-  <Costura IncludeDebugSymbols="false">
-    <Unmanaged32Assemblies>SQLite.Interop</Unmanaged32Assemblies>
-    <Unmanaged64Assemblies>SQLite.Interop</Unmanaged64Assemblies>
-  </Costura>
+  <Costura IncludeDebugSymbols="false" />
 </Weavers>

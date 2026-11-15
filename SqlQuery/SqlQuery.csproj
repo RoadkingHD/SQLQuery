@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <CopySQLiteInteropFiles>false</CopySQLiteInteropFiles>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -101,4 +102,12 @@
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EmbedSQLiteInteropFiles" BeforeTargets="ResolveReferences">
+    <ItemGroup>
+      <EmbeddedResource Include="@(SQLiteInteropFiles)">
+        <LogicalName Condition="$([System.String]::new('%(Identity)').Contains('x86'))">costura32.sqlite.interop.dll</LogicalName>
+        <LogicalName Condition="$([System.String]::new('%(Identity)').Contains('x64'))">costura64.sqlite.interop.dll</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
 </Project>
